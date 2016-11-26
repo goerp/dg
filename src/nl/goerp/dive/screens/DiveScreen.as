@@ -82,6 +82,8 @@ package nl.goerp.dive.screens
 			graphics.lineTo(800, 600);
 			graphics.lineTo(0, 600);
 			graphics.endFill();
+			
+			
 		}
 		
 	}

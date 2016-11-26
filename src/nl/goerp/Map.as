@@ -3,13 +3,14 @@ package nl.goerp
 	import flash.display.BitmapData;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import nl.goerp.location.Harbor;
 	/**
 	 * ...
 	 * @author Goerp
 	 */
 	public class Map 
 	{
-		public var heightMap:BitmapData = new BitmapData(400, 400,false,0);
+		public var heightMap:BitmapData = new BitmapData(400, 400,false,0xFF000001);
 		public var heightThreshold:uint=1000;
 		public function Map() 
 		{
@@ -61,21 +62,87 @@ package nl.goerp
 						if (newval > 255){
 							trace("doh");
 						}
-						
-					}else  if (heightMap.getPixel(xi, yi) == heightThreshold){
-						newval = 0;;
 					}else {
 						tval = 127 + (128 * heightMap.getPixel(xi, yi) / max); 
 						if (tval > 255){
 							trace("doh");
 						}
 
-						newval = tval* 0x10000;
+						newval = tval* 0x100;
 					}
 					heightMap.setPixel(xi, yi, newval);
 				}
 				
 			}
+			for (xi = 1; xi < 399; xi++){
+				for (yi = 1; yi < 399; yi++){
+					if (heightMap.getPixel(xi, yi) !=0 && heightMap.getPixel(xi, yi) <256 && (
+						heightMap.getPixel(xi+1,yi) >255||
+						heightMap.getPixel(xi-1,yi) >255||
+						heightMap.getPixel(xi,yi+1) >255||
+						heightMap.getPixel(xi,yi-1) >255
+					)){
+						heightMap.setPixel(xi, yi, 0);
+					}
+				}
+				
+			}
+			
+			var nrHarbors:int = 0;
+			while (nrHarbors < 50){
+				x = 100*(Math.floor(Math.random() * 390)+5);
+				y = 100 * (Math.floor(Math.random() * 390) + 5);
+
+				if(heightMap.getPixel(x/100, y/100)==0){
+					heightMap.setPixel(x/100, y/100, 0xFFFFFF);
+					nrHarbors++; 
+					World.harbors.push(new Harbor(x, y, ""));
+				}
+			}
+			
+			for each(var h:Harbor in World.harbors){
+				var done:Boolean = false;
+				var prevx:int = -1;
+				var prevy:int = -1;
+				x = Math.floor(h.x / 100);
+				y = Math.floor(h.y / 100);
+				var dxa:Array = [0, 1, 1, 1, 0, -1, -1, -1];
+				var dya:Array = [ -1, -1, 0, 1, 1, 1, 0, -1];
+				var curd:uint = 0;
+				heightMap.setPixel(x , y, 0xFEFFFF);
+				var firstStep:Boolean = true;
+				while (!done){
+					for (var ai:int = 0; ai < 8; ai++){
+						curd++; 
+						if( curd > 7) curd = 0;
+						dx = dxa[curd];
+						dy = dya[curd];
+						if ((heightMap.getPixel(x + dx, y + dy) == 0 || heightMap.getPixel(x + dx, y + dy) == 0xFFFFFF || heightMap.getPixel(x + dx, y + dy) == 0xFEFFFF) ){
+							if (heightMap.getPixel(x+dx, y+dy) == 0xFFFFFF){
+								h.landConnectedTo.push(World.getHarborByPos(x+dx, y+dy));
+							}else if (heightMap.getPixel(x + dx, y + dy) == 0xFEFFFF){
+								done = true;
+							} else{
+								heightMap.setPixel(x + dx, y + dy, 0xFF0000);
+							}
+							prevx = x;
+							prevy = y;
+							x = x + dx;
+							y = y + dy;
+							break;
+						}
+					}
+					if (ai == 8) {
+						done = true;
+					}
+				}
+			}
+			for each(h in World.harbors){
+				x = Math.floor(h.x / 100);
+				y = Math.floor(h.y / 100);
+				heightMap.setPixel(x, y, 0xFFFFFF);
+			}
+			
 			
 		}
 		

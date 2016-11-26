@@ -5,7 +5,9 @@ package nl.goerp.dive
 	import flash.display.Bitmap;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.ui.Keyboard;
 	import nl.goerp.Option;
 	import nl.goerp.dive.screens.DiveScreen;
 	import nl.goerp.dive.screens.StartScreen;
@@ -22,7 +24,9 @@ package nl.goerp.dive
 		private var strategyProtoButton:PushButton = new PushButton(null, 400, 200, "strategy");
 		private var strategyScreen:StrategyScreen = new StrategyScreen;
 		private var divingScreen:DiveScreen = new DiveScreen;
-		private var startScreen:StartScreen= new StartScreen;
+		private var startScreen:StartScreen = new StartScreen;
+		
+		private var currentharbor:int = 0;
 		
 		public function Main() 
 		{
@@ -49,9 +53,23 @@ package nl.goerp.dive
 		private function startStrategyProto(e:Event):void{
 			strategyScreen.addChild(new Label(strategyScreen, 300, 300, "strategy"));
 			strategyScreen.addChild(new Bitmap(World.map.heightMap));
-			//strategyScreen.scaleX = 2;
-			//strategyScreen.scaleY = 2;
+			strategyScreen.scaleX = 5;
+			strategyScreen.scaleY = 5;
 			setScreen(strategyScreen);
+			stage.addEventListener(KeyboardEvent.KEY_UP, doKeyUp);
+		}
+		private function doKeyUp(ke:KeyboardEvent):void{
+			if (ke.keyCode == Keyboard.PAGE_UP){
+				currentharbor++;
+				if(currentharbor>=World.harbors.length) currentharbor=0;
+			}
+			if (ke.keyCode == Keyboard.PAGE_DOWN){
+				currentharbor--;
+				if (currentharbor < 0) currentharbor = World.harbors.length - 1;
+			}
+			strategyScreen.x =200-(5 * World.harbors[currentharbor].x/100);
+			strategyScreen.y =200-(5 * World.harbors[currentharbor].y/100);
+			
 		}
 		private function setScreen(screen:Sprite):void{
 			if (numChildren>0) removeChild(this.getChildAt(0));

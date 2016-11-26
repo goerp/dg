@@ -6,9 +6,12 @@ package nl.goerp.location
 	 */
 	public class Location 
 	{
-		
-		public function Location() 
+		public var x:uint;
+		public var y:uint;
+		public function Location(x:uint, y:uint) 
 		{
+			this.x = x;
+			this.y = y;
 			
 		}
 		

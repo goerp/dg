@@ -7,9 +7,12 @@ package nl.goerp.location
 	public class Harbor extends Location 
 	{
 		
-		public function Harbor() 
+		public var name:String;
+		public var landConnectedTo:Vector.<Harbor>=new Vector.<Harbor>
+		public function Harbor(x:uint, y:uint, name:String) 
 		{
-			super();
+			super(x,y);
+			this.name = name;
 			
 		}
 		
