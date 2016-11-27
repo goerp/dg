@@ -3,6 +3,7 @@ package nl.goerp
 	import flash.display.BitmapData;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import nl.goerp.location.Connection;
 	import nl.goerp.location.Harbor;
 	/**
 	 * ...
@@ -100,7 +101,9 @@ package nl.goerp
 				}
 			}
 			
+			var connectionsMade:Number = 0;
 			for each(var h:Harbor in World.harbors){
+				
 				var done:Boolean = false;
 				var prevx:int = -1;
 				var prevy:int = -1;
@@ -119,7 +122,8 @@ package nl.goerp
 						dy = dya[curd];
 						if ((heightMap.getPixel(x + dx, y + dy) == 0 || heightMap.getPixel(x + dx, y + dy) == 0xFFFFFF || heightMap.getPixel(x + dx, y + dy) == 0xFEFFFF) ){
 							if (heightMap.getPixel(x+dx, y+dy) == 0xFFFFFF){
-								h.landConnectedTo.push(World.getHarborByPos(x+dx, y+dy));
+								h.connections.push(new Connection(h, World.getHarborByPos(x + dx, y + dy), "bus", (new Point(h.x - x - dx, h.y - y - dy)).length, Math.floor(Math.random() * 24 * 7), Math.floor(Math.random() * 7) * 24));
+								connectionsMade++;
 							}else if (heightMap.getPixel(x + dx, y + dy) == 0xFEFFFF){
 								done = true;
 							} else{
@@ -137,12 +141,23 @@ package nl.goerp
 					}
 				}
 			}
+			var h2:Harbor;
 			for each(h in World.harbors){
 				x = Math.floor(h.x / 100);
 				y = Math.floor(h.y / 100);
 				heightMap.setPixel(x, y, 0xFFFFFF);
+				for (var i:int = 0; i < Math.floor(Math.random() * 5) + 1; i++){
+					h2 = World.harbors[Math.floor(Math.random() * World.harbors.length)];
+					if (h != h2){
+						if (Math.random() > 0.9){
+							h.connections.push(new Connection(h, h2, "plane", 50*(new Point(h.x - x - dx, h.y - y - dy)).length, Math.floor(Math.random() * 24 * 7), (Math.floor(Math.random() * 7)+6) * 24));
+						}else{
+							h.connections.push(new Connection(h, h2, "boat", 10*(new Point(h.x - x - dx, h.y - y - dy)).length, Math.floor(Math.random() * 24 * 7), (Math.floor(Math.random() * 7)+6) * 24));
+						}
+					}
+				}
 			}
-			
+			trace( "connectionsMade:" + connectionsMade);
 			
 		}
 		

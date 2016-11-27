@@ -7,11 +7,13 @@ package nl.goerp.dive
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.system.ConnexionsClient;
 	import flash.ui.Keyboard;
 	import nl.goerp.Option;
 	import nl.goerp.dive.screens.DiveScreen;
 	import nl.goerp.dive.screens.StartScreen;
 	import nl.goerp.dive.screens.StrategyScreen;
+	import nl.goerp.location.Connection;
 	
 	/**
 	 * ...
@@ -53,8 +55,8 @@ package nl.goerp.dive
 		private function startStrategyProto(e:Event):void{
 			strategyScreen.addChild(new Label(strategyScreen, 300, 300, "strategy"));
 			strategyScreen.addChild(new Bitmap(World.map.heightMap));
-			strategyScreen.scaleX = 5;
-			strategyScreen.scaleY = 5;
+			//strategyScreen.scaleX = 5;
+			//strategyScreen.scaleY = 5;
 			setScreen(strategyScreen);
 			stage.addEventListener(KeyboardEvent.KEY_UP, doKeyUp);
 		}
@@ -67,9 +69,19 @@ package nl.goerp.dive
 				currentharbor--;
 				if (currentharbor < 0) currentharbor = World.harbors.length - 1;
 			}
-			strategyScreen.x =200-(5 * World.harbors[currentharbor].x/100);
-			strategyScreen.y =200-(5 * World.harbors[currentharbor].y/100);
+			//strategyScreen.x =200-(5 * World.harbors[currentharbor].x/100);
+			//strategyScreen.y = 200 - (5 * World.harbors[currentharbor].y / 100);
+			var s:Sprite = new Sprite;
+			s.graphics.clear();
+			s.graphics.lineStyle(1,0xffffff, 1);
 			
+			if (World.harbors[currentharbor].connections.length == 0) trace("no connections");
+			for each (var c:Connection in World.harbors[currentharbor].connections){
+				trace("from:" + c.from.name + " to:" + c.to.name + " costs:" + String(c.cost) +" by:" + c.transportType + " leaves:" + World.dayNames[World.day(c.departTime)] + ", at " + String(c.departTime % 24) + "h" + ", every " + String(Math.floor(c.timeBetweenDeparts / 24)) + "days" + " duration:" + c.duration()) ;
+				s.graphics.moveTo(c.from.x/100, c.from.y/100);
+				s.graphics.lineTo(c.to.x/100, c.to.y/100);
+			}
+			strategyScreen.addChild(s);
 		}
 		private function setScreen(screen:Sprite):void{
 			if (numChildren>0) removeChild(this.getChildAt(0));

@@ -11,6 +11,7 @@ package
 	 */
 	public class World 
 	{
+		public static var dayNames:Array=['sun', 'm','t','w','t','f','sat']
 		public static var currentLocation:Location;
 		/**
 		 * currentTime is measured in hours, fraction of hours is possible
@@ -25,7 +26,7 @@ package
 		
 		public static const WORLD_WIDTH:uint = 40000;
 		
-		public static function day(time:Number):Boolean{
+		public static function day(time:Number):int{
 			return Math.floor(time / 24);
 		}
 		public static function getHarborByPos(x:uint, y:uint):Harbor{

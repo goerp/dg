@@ -1,10 +1,12 @@
 package nl.goerp.location 
 {
+	import nl.goerp.Option;
+	import nl.goerp.OptionDeliverable;
 	/**
 	 * ...
 	 * @author Goerp
 	 */
-	public class Location 
+	public class Location implements OptionDeliverable
 	{
 		public var x:uint;
 		public var y:uint;
@@ -13,6 +15,11 @@ package nl.goerp.location
 			this.x = x;
 			this.y = y;
 			
+		}
+
+		public function getOptions():Vector.<Option>{
+			throw new Error("should be overridden");
+			return null;
 		}
 		
 	}

@@ -40,9 +40,12 @@ package nl.goerp.dive.screens
 			var y2:int = s[1];
 			var y:Number;
 
-			var rockyness:int = Math.pow(2,(Math.ceil((xi^yi) & 3)+2))-1;
-			var depth:int = 100+Math.min(xi+yi,127)+((xi^(yi>>7)) & 63);
-			trace(depth);
+			var startDepth:int = 150 + Math.min(xi + yi, 127) + ((xi ^ (yi >> 7)) & 63);
+			var endDepth:int = 50 + Math.min(xi + yi, 127) + ((xi ^ (yi >> 7)) & 63);
+			var waterLevel:int = 200;
+			var rockyness:int = Math.pow(2,(Math.ceil((xi^yi) & 7)+1))-1;
+			
+			//trace(depth);
 			for (var i:int = 0; i < 10; i++){
 				x2 = s[0];
 				y2 = s[1];
@@ -61,6 +64,14 @@ package nl.goerp.dive.screens
 				amplitude.push(((s[1] + y2) & rockyness) >> 1);	
 				//trace(amplitude[i]);
 			}
+			
+			graphics.clear();
+			
+			graphics.beginFill(0x6644ff);
+			graphics.drawRect(0, waterLevel, 800, 600 - waterLevel);
+			graphics.endFill
+			
+			
 			graphics.beginFill(0xff00ff);
 			graphics.lineStyle(2, 0x38530F);// beginFill(0xff00ff);
 			
@@ -68,7 +79,7 @@ package nl.goerp.dive.screens
 			graphics.moveTo(0, 600);
 			graphics.lineTo(0, 300);
 			for ( var x:int = 1; x < 800; x+=10){			
-				y = depth;
+				y = startDepth+((startDepth-endDepth)*(x/800));
 				for ( i = 0; i < 10; i++){
 					y = y + Math.sin((x / 3) / period[i]) * amplitude[i];
 					if (isNaN(y)){
@@ -82,6 +93,7 @@ package nl.goerp.dive.screens
 			graphics.lineTo(800, 600);
 			graphics.lineTo(0, 600);
 			graphics.endFill();
+			
 			
 			
 		}
