@@ -4,7 +4,10 @@ package nl.goerp.dive.screens
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
 	import flash.events.AVLoadInfoEvent;
+	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.ui.Keyboard;
 	
 	/**
 	 * ...
@@ -12,6 +15,8 @@ package nl.goerp.dive.screens
 	 */
 	public class DiveScreen extends Sprite 
 	{
+		public var diver:Sprite = World.player.visual;
+		public var waterLevel:int = 200;
 		
 		public function DiveScreen() 
 		{
@@ -20,13 +25,89 @@ package nl.goerp.dive.screens
 			addChild(b);
 			addEventListener(MouseEvent.CLICK, clicked);
 		}
+		public function doTick(e:Event):void{
+			
+			World.player.updateO2();
+			
+			var weight:Number = World.player.BASE_WEIGHT + World.player.beltWeight;
+
+			var fGravY:Number = World.player.BASE_DOWN_FORCE+(World.player.beltWeight * 9.8);
+			var fBuoyY:Number ;
+			if (World.player.visual.y < waterLevel ){
+				World.player.takeBreath();
+				if (World.player.visual.y + World.player.visual.height < waterLevel){
+					fBuoyY = 0;
+					
+				}else{
+					var partUnderWater:Number = World.player.visual.y + World.player.visual.height - waterLevel;
+					partUnderWater = partUnderWater / World.player.visual.height;
+					fBuoyY = -World.player.upForce() * partUnderWater;
+				}
+			}else{
+				fBuoyY = -World.player.upForce();
+			}
+			
+			//if (vDrag > v) vDrag = v;
+			
+			var fResultX:Number = World.player.fx;
+			var fResultY:Number = World.player.fy + fGravY + fBuoyY;
+			
+			//https://en.wikipedia.org/wiki/Drag_(physics)#Drag_at_high_velocity
+			/*var fFlipper:Number = v*(World.player.BASE_WEIGHT+World.player.beltWeight)-drag;
+			var fy:Number;
+			if (World.player.visual.y < waterLevel){
+				fy = 0;
+			}else {
+				fy = fFlipper * Math.sin(World.player.visual.rotation * 6.28 / 360) + World.player.BASE_DOWN_FORCE+World.player.beltWeight * 9.8 - World.player.UP_FORCE_WITH_AIR;
+			}
+			var fx:Number = fFlipper * Math.cos(World.player.visual.rotation * 6.28 / 360);
+			*/
+			
+			var dvx:Number = fResultX / weight;
+			var dvy:Number = fResultY / weight;
+
+			var v:Number = Math.sqrt((World.player.vx+dvx) * (World.player.vx+dvx) + (World.player.vy+dvy) * (World.player.vy+dvy));
+
+			var fDrag:Number = -0.5 * 1020 * Math.pow(v, 2) * 0.04 * 0.5;
+			var fDragx:Number = v != 0 ? fDrag * (World.player.vx / v) : 0;
+			var fDragy:Number = v != 0 ? fDrag * (World.player.vy / v) : 0;
+			
+			fResultX = World.player.fx + fDragx;
+			fResultY = World.player.fy + fGravY + fBuoyY + fDragy; 
+			
+			//trace("speed" + World.player.vy + " dv:"+ (fResultY / weight));
+			
+
+			World.player.vx += fResultX / weight;
+			World.player.vy += fResultY / weight ;
+			World.player.visual.x += World.player.vx ;
+			World.player.visual.y += World.player.vy ;
+			
+			World.player.fx = 0;
+			World.player.fy = 0;
+			this.graphics.clear;
+			this.graphics.beginFill(0x8888FF);
+			this.graphics.drawRect(10, 10, (300 * World.player.o2InBreath), 10);
+		}
+		
+		
 		
 		public function clicked(me:MouseEvent):void{
 			init(me.localX, me.localY);
 		}
+		public function handleKey(ke:KeyboardEvent):void{
+			if (ke.keyCode == Keyboard.LEFT) diver.rotation-=5;
+			if (ke.keyCode == Keyboard.RIGHT) diver.rotation += 5;
+			if (ke.keyCode == Keyboard.F) World.player.flippers != World.player.flippers;
+			if (ke.keyCode == Keyboard.B) World.player.breatheOut();
+			if (ke.keyCode == Keyboard.UP){
+				World.player.moveLeg();
+			}
+		}
+		
 		
 		public function init(xi:Number, yi:Number):void{
-
+			
 			var s:Array=new Array;
 			var period:Array=new Array; 
 			var amplitude:Array=new Array;
@@ -42,7 +123,7 @@ package nl.goerp.dive.screens
 
 			var startDepth:int = 150 + Math.min(xi + yi, 127) + ((xi ^ (yi >> 7)) & 63);
 			var endDepth:int = 50 + Math.min(xi + yi, 127) + ((xi ^ (yi >> 7)) & 63);
-			var waterLevel:int = 200;
+			
 			var rockyness:int = Math.pow(2,(Math.ceil((xi^yi) & 7)+1))-1;
 			
 			//trace(depth);
@@ -94,7 +175,13 @@ package nl.goerp.dive.screens
 			graphics.lineTo(0, 600);
 			graphics.endFill();
 			
-			
+			diver.y = waterLevel;
+			diver.x = 300;
+			addChild(diver);
+
+			stage.addEventListener(KeyboardEvent.KEY_UP, handleKey);
+			addEventListener(Event.ENTER_FRAME, doTick);
+
 			
 		}
 		

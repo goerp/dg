@@ -18,7 +18,7 @@ package
 		 */
 		public static var currentTime:Number;
 		
-		public static var player:Player;
+		public static var player:Player=new Player;
 		
 		public static var map:Map = new Map;
 		

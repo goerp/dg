@@ -114,6 +114,7 @@ package nl.goerp
 				var curd:uint = 0;
 				heightMap.setPixel(x , y, 0xFEFFFF);
 				var firstStep:Boolean = true;
+				/*
 				while (!done){
 					for (var ai:int = 0; ai < 8; ai++){
 						curd++; 
@@ -140,7 +141,9 @@ package nl.goerp
 						done = true;
 					}
 				}
+				*/
 			}
+			
 			var h2:Harbor;
 			for each(h in World.harbors){
 				x = Math.floor(h.x / 100);

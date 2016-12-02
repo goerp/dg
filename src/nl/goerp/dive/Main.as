@@ -34,7 +34,7 @@ package nl.goerp.dive
 		{
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
-			World.map.buildHeightMap();
+			
 		}
 		
 		private function init(e:Event = null):void 
@@ -46,6 +46,8 @@ package nl.goerp.dive
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			setScreen(startScreen);
+			World.map.buildHeightMap();
+			World.currentLocation = World.harbors[Math.floor(Math.random() * World.harbors.length)];
 		}
 		private function startDivingProto(e:Event):void{
 			divingScreen.addChild(new Label(divingScreen, 300, 300, "diving"));
